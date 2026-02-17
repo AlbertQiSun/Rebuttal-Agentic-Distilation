@@ -136,3 +136,54 @@ Training Paradigm|Distillation (SFT, OPD)|Reinforcement Learning (PPO, GRPO)
 Data Source|Teacher LLM trajectories|Self-generated with reward signal
 Compute Requirements|Moderate (SFT on filtered trajectories)|High (RL rollouts, reward models)
 Core Contribution|Always-Search Policy for SLMs|RL framework for search agents
+
+We extensively explored RL but found fundamental limitations for extreme SLMs:
+
+1. Direct RL (Search-R1 framework) fails on extreme SLMs (0.6B-1.7B):We attempted to apply the Search-R1 RL framework directly to our target models:
+
+    Key finding: Extreme SLMs (0.6B-1.7B) cannot generate sufficiently high-quality initial trajectories for RL to work. The sparse outcome-based reward signal (answer correctness) provides insufficient guidance when most trajectories are incorrect, leading to training collapse.
+
+2. RL after SFT still degrades performance on extreme SLMs:We then tried applying RL as a refinement step after SFT distillation:
+
+    Why RL fails after SFT: We hypothesize that outcome-based RL causes reward hacking in extreme SLMs—models learn to exploit shortcuts (e.g., generating plausible-sounding answers without proper search) rather than improving search behavior, degrading the carefully learned ASP patterns from SFT.
+
+On-Policy Distillation (OPD) succeeds where RL fails:
+
+We do incorporate RL principles in our work through On-Policy Distillation (Table 1, line 213), which uses:
+
+- Token-level distribution matching (KL divergence) instead of sparse outcome rewards
+- Teacher model guidance to regularize student exploration
+- Continuous signal at every token rather than delayed outcome feedback
+
+OPD vs. outcome-based RL:
+Method|Reward Signal|Qwen3-0.6B|Qwen3-1.7B|Stability|
+---|---|---|---|---
+GRPO (outcome)|Answer correctness|Failed|Failed|✗ Unstable
+OPD (token-level)|KL(student-teacher)|-|-|-
+SFT only|N/A (supervised)|47.0|57.6|✓ Stable
+
+Key insight: Token-level RL (OPD) provides dense supervision that extreme SLMs can learn from, while outcome-based RL's sparse rewards are too difficult for models that struggle to generate correct trajectories.
+
+Search-R1's performance is limited on small models:
+
+Even when RL converges on larger SLMs (7B), performance is comparable to our distillation approach:
+
+- Search-R1 (Qwen2.5-7B with RL): ~60-65 F1 on HotpotQA
+- ASP-distilled (Qwen3-1.7B with SFT): 57.6 F1
+- Our 1.7B achieves 86-95% of RL-trained 7B performance with 1/4 the parameters
+
+Why distillation is more suitable for extreme SLMs:
+
+- Stability: SFT and OPD converge reliably on 0.6B-1.7B models; outcome-based RL fails
+- Dense supervision: Teacher trajectories provide step-by-step guidance; sparse rewards do not
+- Efficiency: Distillation requires one training pass; RL requires expensive rollouts
+- Focus on "what" not "how": Our contribution is showing what to distill (always-search behavior) is more critical than how to optimize (RL vs. SFT)
+
+Our exploration of RL methods:
+
+- SFT (Section 4.1): Base distillation approach
+- OPD (Section 4.1, Table 1): Token-level RL with teacher regularization
+- Mixed (SFT + OPD): Combined approach (Table 1, line 211)
+- RFT (Rejection Fine-Tuning): Reinforcement from self-generated trajectories (lines 184-187)
+
+We thoroughly investigated both direct RL and RL-after-SFT approaches but found they are fundamentally unsuitable for extreme SLMs (<2B). Instead, we demonstrate that distillation with token-level RL (OPD) provides the right balance of stability and performance for our target model scales. This is an empirical finding that advances our understanding of what training paradigms work for extreme SLMs.
