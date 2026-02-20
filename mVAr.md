@@ -44,22 +44,20 @@ Below we address each concern in detail:
 
 ### **For W1 (Implementation details):**
 
-We appreciate this important point about reproducibility. The key implementation details are included in Appendix B.2 (lines 478-493) due to the strict space constraints of the short paper track. We acknowledge that Section 4.1 should better highlight ASP's implementation mechanics. 
-
-- For SFT with ASP (Trajectory-based Offline Distillation):
+The key implementation details are included in Appendix B.2 (lines 478-493) due to the strict space constraints of the short paper.
+TODO: check details here (Yizhou)
+- SFT:
     - We apply dual filtering: (1) String-F1 > 0.65, and (2) strict search tool checking that validates models consistently invoke search rather than relying on parametric knowledge
-    - Training: 18K filtered trajectories, 3 epochs, AdamW optimizer, lr=1e-5, batch size=4
-    - The filtering ensures only trajectories where the model searches for all required information are retained
-- For OPD with ASP:
-    - System prompt explicitly instructs the model to always use search tools (see Appendix B.4, lines 515-518)
-    - Teacher model's log-probability distribution regularizes student behavior
+    - Training: 18K trajectories before filtering (~10K trajectories after filtering), 3 epochs, AdamW optimizer, lr=1e-5, batch size=4
+    - For rejection finetuning, the same dual-filtering is applied, and we set 
+- OPD:
+    - System prompt instructs the model to always use search tools (see Appendix B.4, lines 515-518), and teacher model's log-probability distribution regularizes student behavior
     - Training: 3K samples, 8 trajectories/sample, 4 epochs, lr=2e-6. We used a batch size of 4 with gradient accumulation, resulting in an effective global batch size of 32.
 
-We will highlight these details in the main text in the final version.
-
+Regluar distillation
 ### **For W2 (Search Tool Call Statistics)**
 
-We report this in Section 4.2 (lines 222-225), but it's only for ASP-trained models. 
+We report search tool call numbers in Section 4.2 (lines 222-225) on HotpotQA benchmark, but it's only for ASP-trained models. 
 ModelAvg. |Tool CallsPerformance |(F1)
 |---|---|---|
 |Vanilla-Qwen3-1.7B|1.72|42.3|
@@ -73,17 +71,11 @@ However, the "under-searching" issue is not merely quantitative but also qualita
 - 33 cases (50%): Hallucination - the model ignores retrieved evidence or fills gaps with parametric knowledge
 - 16 cases (24%): show both issues co-occurring - suggesting the model's search behavior is fundamentally unreliable
 
-    (**Note:** categories are not mutually exclusive; total annotations exceed 66 cases)
-
-**Key insight:** Simply increasing search frequency from 1.72→1.89 doesn't address the root problem. The distilled model exhibits:
-- Syntactic failures: Struggles with tool-calling format (Section 3.1, line 117)
-- Semantic failures: Even when it searches, queries are often poorly formulated or the model disregards results
-
-This is why we emphasize that ASP not only increases search frequency (**2.47**-**2.84** calls) but enforces consistent, reliable search behavior - every search is meaningful and results are properly utilized, as demonstrated by the 9.7 F1 improvement over standard distillation.
+ASP not only increases search frequency but enforces consistent, reiable search behavior. By resolving the problems of insufficient bad retrieval and hallucination, general performance improves as demonstrated by 9.7% of improvement in F1 score over standard distillation. 
 
 ### **For W3 (Efficiency and Latency Analysis)**
 
-We appreciate this concern, but respectfully suggest that latency **is not the primary bottleneck** when comparing models of equivalent performance. The key question should be: "For comparable accuracy, which model offers better efficiency?"
+We appreciate this concern. In this paper, we concentrate on improving the performance of SLMs on agentic search tasks, but we are also glad to provide some latency-related analysis. 
 
 Performance-Matched Latency Comparison (HotpotQA, H20 GPU, vllm, faiss-gpu):
 |Model|String-F1|Avg. Latency|Search Calls|
@@ -93,25 +85,14 @@ Performance-Matched Latency Comparison (HotpotQA, H20 GPU, vllm, faiss-gpu):
 |Vanilla-Qwen3-8B|58.2|~5.6s|2.31|
 |Vanilla-Qwen3-32B|60.3|~8.3s|3.02|
 
-Key observations:
-- ASP-trained 1.7B achieves 8B-level performance (57.6 vs 58.2 F1) with ~44% lower latency (3.1s vs 5.5s)
-- The latency-performance tradeoff is favorable: While ASP adds search overhead compared to vanilla-1.7B, it achieves substantially better performance while remaining far more efficient than performance-matched larger models
-- This is the expected and desired outcome - smaller models with more tool usage outperforming larger models is precisely the motivation for our work
-
-Regarding the increased search calls: Yes, ASP increases searches from 1.72→2.47 calls per query. However, this is the mechanism of improvement, not a limitation. The alternative to achieve similar performance would be deploying an 8B or 32B model, which incurs significantly higher computational cost.
-
-The performance-latency tradeoff is straightforward and expected: smaller models are faster, larger models are slower. Our contribution is **enabling SLMs to achieve LLM-level performance through better search behavior**, not optimizing latency. The fact that ASP-trained SLMs naturally maintain their efficiency advantage over larger models while closing the performance gap is implicit in the model size choice.
-
-Optional addition: If desired, we can add a brief latency discussion to Section 4.2 in our final version, though we believe the performance-matched comparison above makes the tradeoff clear.
+ASP increases search call numbers from 1.72 to 2.47 calls per query in order to reach comparable performance to LLMs. However, while ASP may add some search overhead, ASP-trained SLMs still remain significantly more efficient than performance-matched larger models. For instance, SFT-1.7B achieves 8B-level performance with ~44% lower latency. Although our contribution is **enabling SLMs to achieve LLM-level performance through better search behavior**, not optimizing latency, ASP-trained SLMs naturally maintain their efficiency advantage over larger models while closing the performance gap.
 
 ### **Reproducibility Concern:**
 Regarding reproducibility (score: 2):
 - We will release all code, model checkpoints, and training scripts upon acceptance
-- We will refine Appendix and section 4.2 for implementation details
-- All datasets used for benchmark are publicly available
+- We will refine implementation details in both section 4 and Appendix B 
+- All datasets used for benchmark are publicly available, including training samples
 
-We hope these additions will improve the reproducibility score.
-
-We sincerely appreciate your thorough review and constructive suggestions. We believe addressing these points will significantly strengthen the paper's clarity and reproducibility. We are committed to releasing all code, models, and detailed documentation upon acceptance to facilitate community adoption of ASP.
+We hope that these additions will further enhance the clarity and transparency of our work, thereby contributing positively to its reproducibility assessment.
 
 Thank you again for your valuable feedback.

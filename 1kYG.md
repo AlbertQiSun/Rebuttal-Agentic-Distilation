@@ -42,7 +42,7 @@ Reviewer Certification: I certify that the review I entered accurately reflects 
 
 # Reponse to Reviewer 1kYG
 
-Dear reviewer,
+Dear reviewer 1kYG,
 We sincerely appreciate your recognition of our ASP methodology as well as the thoroughness of systematic analysis and experiment results. Below, we respond to each identified weakness respectively. 
 
 ### **W1 (Limited to Qwen3 Model Family)** 
