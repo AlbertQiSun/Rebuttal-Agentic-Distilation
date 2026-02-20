@@ -45,14 +45,17 @@ Below we address each concern in detail:
 ### **For W1 (Implementation details):**
 
 The key implementation details are included in Appendix B.2 (lines 478-493) due to the strict space constraints of the short paper.
-TODO: check details here (Yizhou)
+
 - SFT:
     - We apply dual filtering: (1) String-F1 > 0.65, and (2) strict search tool checking that validates models consistently invoke search rather than relying on parametric knowledge
-    - Training: 18K trajectories before filtering (~10K trajectories after filtering), 3 epochs, AdamW optimizer, lr=1e-5, batch size=4
-    - For rejection finetuning, the same dual-filtering is applied, and we set 
+    - Training: 18K trajectories before filtering, 3 epochs, AdamW optimizer, lr=1e-5, batch size=4
+    - For rejection finetuning, the same dual-filtering is applied, and we train on 15K trajectories before filtering for 3 epochs, Adam optimizer, 
 - OPD:
     - System prompt instructs the model to always use search tools (see Appendix B.4, lines 515-518), and teacher model's log-probability distribution regularizes student behavior
     - Training: 3K samples, 8 trajectories/sample, 4 epochs, lr=2e-6. We used a batch size of 4 with gradient accumulation, resulting in an effective global batch size of 32.
+- Rejection Finetuning:
+    - We apply the same dual filtering as SFT.
+    - Training: 10K trajectories before filtering, 2 epochs, AdamW optimizer, lr=5e-6, batch size=4
 
 Regluar distillation
 ### **For W2 (Search Tool Call Statistics)**
