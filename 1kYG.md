@@ -99,7 +99,7 @@ We appreciate this suggestion and fully agree that more qualitative examples wou
 
 1. Multi-hop reasoning with entity disambiguation: A case where vanilla SLM conflates similar entities but ASP correctly retrieves and distinguishes them (e.g., "Who directed the 2019 film 'The Great Silence'?" vs. the 1968 film)
 2. Temporal reasoning: a case where SLM's outdated parametric knowledge fails but ASP retrieves current information (e.g., "What is the current population of the capital of the country that won the 2022 World Cup?")
-3/ Comparative reasoning: A case requiring synthesizing information from multiple searches (e.g., "Which film won more Oscars: the debut film of director X or the highest-grossing film of 2015?")
+3. Comparative reasoning: A case requiring synthesizing information from multiple searches (e.g., "Which film won more Oscars: the debut film of director X or the highest-grossing film of 2015?")
 
 These will illustrate ASP's advantages across diverse reasoning patterns, not just the single entity-linking example currently shown.
 
