@@ -43,11 +43,10 @@ Reviewer Certification: I certify that the review I entered accurately reflects 
 # Reponse to Reviewer 1kYG
 
 Dear reviewer,
-We sincerely thank the reviewer for the positive and thorough assessment. We are encouraged that you find ASP "fills a key void," appreciate our "systematic analysis," and recognize the "compelling, well-calibrated results."
+We sincerely appreciate your recognition of our ASP methodology as well as the thoroughness of systematic analysis and experiment results. Below, we respond to each identified weakness respectively. 
 
-Below we address each weakness systematically:
-
-### **W1 (Limited to Qwen3 Model Family)**
+### **W1 (Limited to Qwen3 Model Family)** 
+TODO: add Llama exp results
 We appreciate this observation. However, we respectfully note that evaluation on a single model family is **standard practice in the agentic search and agent distillation literature**, particularly for resource-intensive training paradigms:
 
 Comparable recent work:
@@ -87,66 +86,34 @@ Comprehensive scale range enables controlled analysis of model capability: Qwen3
 De facto standard in agentic search research: 15+ papers (2024-25) use Qwen for agentic tasks, significantly more than alternatives, making results directly comparable to the broader research community and facilitating reproducibility.
 
 ### **W2 (Noisy/Incorrect Retrieval)**
-We actually address this in our Limitations section (lines 322-327):
+We address this in our Limitations section (lines 322-327):
 
 "In addition, the effectiveness of Always-Search Policy implicitly assumes that retrieved information is always accurate and reliable, whereas real-world search environments often contain noisy or misleading content. Developing mechanisms to robustly handle such noise is another crucial aspect."
 
-We acknowledge this is a critical gap for real-world deployment. However, we made a deliberate methodological choice to use closed-domain retrieval (Wikipedia corpus) rather than web search, for several important reasons:
-
-1. Closed-domain retrieval better evaluates genuine multi-hop reasoning:
-
-    Recent work has begun using web search APIs for multi-hop QA benchmarks (e.g., HotpotQA, 2WikiMultiHopQA) that were originally designed for closed-domain Wikipedia retrieval. While web search offers more coverage, we observe it introduces an unintended confound: models learn to "hack" multi-hop reasoning by combining multiple sub-queries into a single search.
-
-    For example:
-
-    Multi-hop question: "What is the birth country of the director of the film 'The Great Silence'?"
-
-    Intended behavior: \<Search\>director of The Great Silence\</search\> → \<search\>birth country of [director name]\</search\>
-
-    Web search "hack": \<search\>>birth country director The Great Silence film\</search\> → directly retrieves the answer
-
-    This "hacking" behavior bypasses the multi-step reasoning process that ASP aims to teach. In closed-domain settings, such combined queries typically fail to retrieve relevant documents, forcing the model to learn proper decomposition and iterative retrieval—the core capability we aim to validate.
-
-2. Controlled corpus enables rigorous evaluation of search behavior:
-
-    Using a fixed Wikipedia corpus (fullwiki-20210620) allows us to:
-
-    - Isolate ASP's effect on search strategy without confounding from variable retrieval quality
-
-    - Ensure reproducibility across experiments and comparisons with prior work (Li et al., 2025; Jin et al., 2025)
-    
-    - Observe failure modes clearly: When models fail to retrieve in closed-domain, it reveals insufficient search rather than noisy retrieval, providing clearer insights into what ASP addresses
-
-3. Standard practice in agentic search literature:
-
-    Our setup follows established methodology in recent agentic search work (Li et al., 2025; Jin et al., 2025), facilitating direct comparison with prior results. The field has converged on controlled corpus evaluation as the primary benchmark for validating search agent capabilities.
-    
-Our work deliberately focuses on teaching SLMs effective search behavior in controlled settings, demonstrating that enforced retrieval is necessary for SLMs to match LLM performance. Robust retrieval under noise is an important but orthogonal research direction that we identify as valuable future work. We will clarify this scope in the camera-ready version.
+We acknowledge this is a critical gap for real-world deployment. However, we made a deliberate methodological choice to use closed-domain retrieval (Wikipedia corpus) rather than web search. In general, this setup follows standard practice in recent agentic search literature (e.g., Li et al., 2025; Jin et al., 2025) and benchmark settings (HotpotQA, 2WikiMultiHopQA), which facilitates direct comparison with prior work. There are also two specific reasons. First, it better evaluates genuine multi-hop reasoning. When applying web search APIs, web search allows model to hack multihop questions by collapsing sub-queries into a single search that retrieves the final answer directly. Second, a fixed corpus ensures a controlled and reproducible evaluation setting by removing variability from external search engines. This enables researcher to attribute performance gap more directly.
 
 ### **W3 (Additional Case Studies)**
+TODO: I think it is better to have the case study before writing what we are going to add
 
-We appreciate this suggestion and fully agree that more qualitative examples would strengthen the paper.
-Commitment: We will add 2-3 additional case studies to Appendix D demonstrating:
+We appreciate this suggestion and fully agree that more qualitative examples would strengthen the paper. We will add 2-3 additional case studies to Appendix D demonstrating:
 
-Multi-hop reasoning with entity disambiguation: A case where vanilla SLM conflates similar entities but ASP correctly retrieves and distinguishes them (e.g., "Who directed the 2019 film 'The Great Silence'?" vs. the 1968 film)
-Temporal reasoning: A case where SLM's outdated parametric knowledge fails but ASP retrieves current information (e.g., "What is the current population of the capital of the country that won the 2022 World Cup?")
-Comparative reasoning: A case requiring synthesizing information from multiple searches (e.g., "Which film won more Oscars: the debut film of director X or the highest-grossing film of 2015?")
+1. Multi-hop reasoning with entity disambiguation: A case where vanilla SLM conflates similar entities but ASP correctly retrieves and distinguishes them (e.g., "Who directed the 2019 film 'The Great Silence'?" vs. the 1968 film)
+2. Temporal reasoning: a case where SLM's outdated parametric knowledge fails but ASP retrieves current information (e.g., "What is the current population of the capital of the country that won the 2022 World Cup?")
+3/ Comparative reasoning: A case requiring synthesizing information from multiple searches (e.g., "Which film won more Oscars: the debut film of director X or the highest-grossing film of 2015?")
 
 These will illustrate ASP's advantages across diverse reasoning patterns, not just the single entity-linking example currently shown.
 
 ### **Typos and Minor Correction**
-Thank you for catching these! We will fix:
+Thank you pointing out! We will fix:
 
 - Section D: "brith country" → "birth country"
 - Section 3.1: "usually has" → "usually have"
 - Section 5: "annswer" → "answer"
 
-## Summary and Commitments
-We are deeply grateful for your thorough review and constructive feedback. Your recognition that ASP "fills a key void" in distilling search capabilities to SLMs, appreciation of our "systematic analysis," and acknowledgment of our "compelling, well-calibrated results" are greatly encouraging. Your overall recommendation for Findings of ACL and high reproducibility score (4) validate the significance of our contribution.
-
+## Commitments
 We commit to the following revisions for the camera-ready version:
 
 - Clarify scope and limitations (W1)
 - Expand robustness discussion (W2)
 - Enhance qualitative validation (W3)
-- Fix all identified typos and conduct thorough proofreading
+- Fix all identified typos
