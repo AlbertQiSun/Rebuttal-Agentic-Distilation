@@ -49,7 +49,6 @@ The key implementation details are included in Appendix B.2 (lines 478-493) due 
 - SFT:
     - We apply dual filtering: (1) String-F1 > 0.65, and (2) strict search tool checking that validates models consistently invoke search rather than relying on parametric knowledge
     - Training: 18K trajectories before filtering, 3 epochs, AdamW optimizer, lr=1e-5, batch size=4
-    - For rejection finetuning, the same dual-filtering is applied, and we train on 15K trajectories before filtering for 3 epochs, Adam optimizer, 
 - OPD:
     - System prompt instructs the model to always use search tools (see Appendix B.4, lines 515-518), and teacher model's log-probability distribution regularizes student behavior
     - Training: 3K samples, 8 trajectories/sample, 4 epochs, lr=2e-6. We used a batch size of 4 with gradient accumulation, resulting in an effective global batch size of 32.
@@ -70,9 +69,9 @@ ModelAvg. |Tool CallsPerformance |(F1)
 |Vanilla-Qwen3-32B|3.02|60.3|
 
 However, the "under-searching" issue is not merely quantitative but also qualitative. Our error analysis (Appendix C) reveals that among the 66 failure cases of Distilled-Qwen3-1.7B:
-- 23 cases (35%): Insufficient/bad retrieval - the model either searches too few times OR formulates poor-quality queries that fail to retrieve relevant information
-- 33 cases (50%): Hallucination - the model ignores retrieved evidence or fills gaps with parametric knowledge
-- 16 cases (24%): show both issues co-occurring - suggesting the model's search behavior is fundamentally unreliable
+- 23 cases (35%): Insufficient/bad retrieval
+- 33 cases (50%): Hallucination
+- 16 cases (24%): Both issues co-occurring
 
 ASP not only increases search frequency but enforces consistent, reiable search behavior. By resolving the problems of insufficient bad retrieval and hallucination, general performance improves as demonstrated by 9.7% of improvement in F1 score over standard distillation. 
 
